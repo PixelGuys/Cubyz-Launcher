@@ -17,11 +17,11 @@ import com.google.gson.JsonParser;
  */
 public class GitHubConnection {
 	/**
-	 * @return The string value of this JsonObject or "" if json is null.
+	 * Function to remove comments(as [[comment]]) from the description and to ensure the result isn't null.
 	 */
-	private static String getJsonAsString(JsonElement e) {
+	private static String getDescription(JsonElement e) {
 		if(e.isJsonNull()) return "";
-		return e.getAsString();
+		return e.getAsString().replaceAll("\\[\\[(.|\\R)*\\]\\]", "").replace("\n", "<br>");
 	}
 	/**
 	 * Connect to github and get an array of all existing releases.
@@ -48,7 +48,7 @@ public class GitHubConnection {
         	release.preRelease = obj.get("prerelease").getAsBoolean();
         	release.date = obj.get("published_at").getAsString();
         	release.name = obj.get("name").getAsString();
-        	release.description = getJsonAsString(obj.get("body"));
+        	release.description = getDescription(obj.get("body"));
         	ArrayList<GithubAsset> assets = new ArrayList<>();
         	obj.get("assets").getAsJsonArray().forEach((elem2) -> {
             	JsonObject obj2 = elem2.getAsJsonObject();
@@ -60,16 +60,6 @@ public class GitHubConnection {
         	release.assets = assets.toArray(new GithubAsset[0]);
         	list.add(release);
         });
-        for(GithubRelease release : list) {
-        	System.out.println(release.preRelease+" "+release.date+" "+release.name+" "+release.description);
-        	for(GithubAsset asset : release.assets) {
-        		System.out.println("    "+asset.name+" "+asset.url);
-        	}
-        }
         return list.toArray(new GithubRelease[0]);
-	}
-	
-	public static void main(String[] args) {
-		downloadReleaseData();
 	}
 }
