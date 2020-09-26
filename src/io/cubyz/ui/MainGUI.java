@@ -14,6 +14,9 @@ import javax.swing.JScrollPane;
 import java.awt.GridLayout;
 import javax.swing.JLabel;
 import javax.swing.JComboBox;
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
+import javax.swing.LayoutStyle.ComponentPlacement;
 
 public class MainGUI extends JFrame {
 
@@ -21,10 +24,10 @@ public class MainGUI extends JFrame {
 	private final JPanel playPanel = new JPanel();
 	private final JPanel infoPanel = new JPanel();
 	private final JPanel scrollPanel = new JPanel();
-	private final JButton btnPlay = new JButton("Play");
+	private final JButton play = new JButton("Play");
 	private final JScrollPane scrollPane = new JScrollPane(scrollPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 	private final JLabel latestVersions = new JLabel("Latest Versions:");
-	private final JLabel currentVersion = new JLabel("Current Version: ");
+	private final JLabel currentVersion = new JLabel("Current Version:");
 	private final JComboBox<String> comboBox = new JComboBox<String>();
 	private final ReleaseInfoPanel[] releases;
 
@@ -38,11 +41,29 @@ public class MainGUI extends JFrame {
 		contentPane.setLayout(new BorderLayout(0, 0));
 		
 		contentPane.add(playPanel, BorderLayout.SOUTH);
-		playPanel.setLayout(new GridLayout(0, 3, 0, 0));
-		playPanel.add(currentVersion);
-		playPanel.add(comboBox);
-		playPanel.add(btnPlay);
-		
+		GroupLayout layout = new GroupLayout(playPanel);
+		layout.setHorizontalGroup(
+			layout.createParallelGroup(Alignment.LEADING)
+				.addGroup(layout.createSequentialGroup()
+					.addContainerGap()
+					.addComponent(currentVersion)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(comboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.RELATED, 535, Short.MAX_VALUE)
+					.addComponent(play)
+					.addContainerGap())
+		);
+		layout.setVerticalGroup(
+			layout.createParallelGroup(Alignment.LEADING)
+				.addGroup(Alignment.TRAILING, layout.createSequentialGroup()
+					.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+					.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+						.addComponent(play)
+						.addComponent(currentVersion)
+						.addComponent(comboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
+		);
+		playPanel.setLayout(layout);
+
 		contentPane.add(infoPanel, BorderLayout.CENTER);
 		infoPanel.setLayout(new GridLayout(1, 1));
 		
@@ -61,5 +82,4 @@ public class MainGUI extends JFrame {
 		this.releases[0].moreInfo.setSelected(true);
 		setVisible(true);
 	}
-
 }
