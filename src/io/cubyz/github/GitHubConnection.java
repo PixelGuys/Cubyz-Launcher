@@ -48,6 +48,7 @@ public class GitHubConnection {
         	release.preRelease = obj.get("prerelease").getAsBoolean();
         	release.date = obj.get("published_at").getAsString();
         	release.name = obj.get("name").getAsString();
+        	release.version = obj.get("tag_name").getAsString();
         	release.description = getDescription(obj.get("body"));
         	ArrayList<GithubAsset> assets = new ArrayList<>();
         	obj.get("assets").getAsJsonArray().forEach((elem2) -> {

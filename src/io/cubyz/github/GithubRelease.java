@@ -10,6 +10,7 @@ public class GithubRelease {
 	public boolean preRelease;
 	public String date;
 	public String name;
+	public String version;
 	public String description;
 	public GithubAsset[] assets;
 	private BufferedImage image = null;

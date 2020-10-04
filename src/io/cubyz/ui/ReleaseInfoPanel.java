@@ -22,7 +22,7 @@ public class ReleaseInfoPanel extends JPanel implements LayoutManager {
 	private final JLabel name = new JLabel();
 	final JCheckBox moreInfo = new JCheckBox("more info");
 	private final JTextPane info = new JTextPane();
-	private final GithubRelease release;
+	final GithubRelease release;
 	private BufferedImage image = null;
 	private final MainGUI container;
 	private int maxWidth;

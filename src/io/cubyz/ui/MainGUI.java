@@ -6,19 +6,36 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import io.cubyz.OSInfo;
+import io.cubyz.github.GithubAsset;
 import io.cubyz.github.GithubRelease;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JScrollPane;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.lang.ProcessBuilder.Redirect;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JComboBox;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
-public class MainGUI extends JFrame {
+public class MainGUI extends JFrame implements ActionListener {
 
 	private JPanel contentPane;
 	private final JPanel playPanel = new JPanel();
@@ -63,6 +80,12 @@ public class MainGUI extends JFrame {
 						.addComponent(comboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
 		);
 		playPanel.setLayout(layout);
+		
+		for(GithubRelease release : releases) {
+			comboBox.addItem(release.version);
+		}
+		
+		play.addActionListener(this);
 
 		contentPane.add(infoPanel, BorderLayout.CENTER);
 		infoPanel.setLayout(new GridLayout(1, 1));
@@ -81,5 +104,116 @@ public class MainGUI extends JFrame {
 		}
 		this.releases[0].moreInfo.setSelected(true);
 		setVisible(true);
+	}
+
+	// Listen if the play button is pressed:
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		// Search the selected release:
+		GithubRelease selected = null;
+		for(ReleaseInfoPanel release : releases) {
+			if(release.release.version == comboBox.getSelectedItem()) {
+				selected = release.release;
+				break;
+			}
+		}
+		// Check if the files already exist, otherwise download them:
+		try {
+			String path = URLDecoder.decode(MainGUI.class.getProtectionDomain().getCodeSource().getLocation().getPath(), "UTF-8");
+			File dir = new File(path+"/"+selected.version);
+			if(!dir.exists()) {
+				dir.mkdir();
+			}
+			File runnableJar = new File(dir.getAbsolutePath()+"/main.jar");
+			if(!runnableJar.exists()) {
+				// Find the correct executable for this OS:
+				GithubAsset exec = null;
+				for(GithubAsset asset : selected.assets) {
+					if(asset.name.contains(OSInfo.OS) && asset.name.contains(OSInfo.ARCH)) {
+						exec = asset;
+						break;
+					}
+				}
+				if(exec == null) {
+					JOptionPane.showMessageDialog(this, "Sorry. This version is not available for your OS. Please contact us on github or on our discord server.");
+					return;
+				}
+				URL website = new URL(exec.url);
+				ReadableByteChannel rbc = Channels.newChannel(website.openStream());
+				FileOutputStream fos = new FileOutputStream(dir.getAbsolutePath()+"/main.jar");
+				fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+				fos.close();
+			}
+			// Download assets and addons:
+			File assetsFolder = new File(dir.getAbsolutePath()+"/assets");
+			if(!assetsFolder.exists()) {
+				// Find the correct github asset:
+				GithubAsset assets = null;
+				for(GithubAsset asset : selected.assets) {
+					if(asset.name.equals("assets.zip")) {
+						assets = asset;
+						break;
+					}
+				}
+				// Maybe in future version the assets folder doesn't exist anymore? So just checking, to be sure.
+				if(assets != null) {
+					// Download and unzip the file:
+					downloadAndUnzip(assets.url, dir.getAbsolutePath());
+				}
+			}
+			File addonsFolder = new File(dir.getAbsolutePath()+"/addons");
+			if(!addonsFolder.exists()) {
+				// Find the correct github asset:
+				GithubAsset addons = null;
+				for(GithubAsset asset : selected.assets) {
+					if(asset.name.equals("addons.zip")) {
+						addons = asset;
+						break;
+					}
+				}
+				// Past versions of cubyz didn't have addons folder.
+				if(addons != null) {
+					// Download and unzip the file:
+					downloadAndUnzip(addons.url, dir.getAbsolutePath());
+				}
+			}
+			ProcessBuilder pb = new ProcessBuilder("java", "-jar", dir.getAbsolutePath()+"/main.jar");
+			pb.directory(dir);
+			pb.redirectOutput(Redirect.INHERIT);
+			pb.redirectError(Redirect.INHERIT);
+			pb.start();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+	}
+	
+	private static void downloadAndUnzip(String url, String outputPath) throws IOException {
+		File destDir = new File(outputPath);
+		if (!destDir.exists()) {
+			destDir.mkdir();
+		}
+		ZipInputStream zipIn = new ZipInputStream(new URL(url).openStream());
+		ZipEntry entry = zipIn.getNextEntry();
+		// iterates over entries in the zip file
+		while(entry != null) {
+			String filePath = outputPath + File.separator + entry.getName();
+			if(!entry.isDirectory()) {
+				// if the entry is a file, extract it
+				BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath));
+				byte[] bytesIn = new byte[4096];
+				int read = 0;
+				while((read = zipIn.read(bytesIn)) != -1) {
+					bos.write(bytesIn, 0, read);
+				}
+				bos.close();
+			} else {
+				// if the entry is a directory, make the directory
+				File dir = new File(filePath);
+				dir.mkdirs();
+			}
+			zipIn.closeEntry();
+			entry = zipIn.getNextEntry();
+		}
+		zipIn.close();
 	}
 }

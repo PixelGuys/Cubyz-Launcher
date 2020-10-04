@@ -9,8 +9,8 @@ import javax.imageio.ImageIO;
  * A simple holder for the data of a github release asset.
  */
 public class GithubAsset {
-	String name;
-	String url;
+	public String name;
+	public String url;
 	BufferedImage downloadAsImage() {
 		try {
 		    URL url = new URL(this.url);
