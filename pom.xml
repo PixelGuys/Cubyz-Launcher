@@ -27,17 +27,32 @@
 						<manifest>
 							<addClasspath>true</addClasspath>
 							<classpathPrefix>lib/</classpathPrefix>
-							<mainClass>io.cubyz.client.GameLauncher</mainClass>
+							<mainClass>io.cubyz.Main</mainClass>
 						</manifest>
 						</archive>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>3.0.0</version>
+				<configuration>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>exec-maven-plugin</artifactId>
 				<version>1.2.1</version>
 				<configuration>
-					<mainClass>io.cubyz.client.GameLauncher</mainClass>
+					<mainClass>io.cubyz.Main</mainClass>
 					<arguments>
 						<argument>argument1</argument>
 					</arguments>

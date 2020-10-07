@@ -120,6 +120,9 @@ public class MainGUI extends JFrame implements ActionListener {
 		// Check if the files already exist, otherwise download them:
 		try {
 			String path = URLDecoder.decode(MainGUI.class.getProtectionDomain().getCodeSource().getLocation().getPath(), "UTF-8");
+			if(path.endsWith(".jar")) { // Make sure to cut off the last bit of the path if packaged inside a jar file.
+				path = path.substring(0, path.lastIndexOf('/'));
+			}
 			File dir = new File(path+"/"+selected.version);
 			if(!dir.exists()) {
 				dir.mkdir();
