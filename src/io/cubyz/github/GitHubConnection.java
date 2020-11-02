@@ -1,4 +1,5 @@
 package io.cubyz.github;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -33,7 +34,7 @@ public class GitHubConnection {
 			HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
 			connection.connect();
 			InputStream stream = connection.getInputStream();
-			json = new String(stream.readAllBytes());
+			json = new String(readAllBytes(stream));
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -62,5 +63,17 @@ public class GitHubConnection {
         	list.add(release);
         });
         return list.toArray(new GithubRelease[0]);
+	}
+	public static byte[] readAllBytes(InputStream inputStream) throws IOException {
+		final int bufLen = 1024;
+		byte[] buf = new byte[bufLen];
+		int readLen;
+
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+		while ((readLen = inputStream.read(buf, 0, bufLen)) != -1)
+			outputStream.write(buf, 0, readLen);
+
+		return outputStream.toByteArray();
 	}
 }
