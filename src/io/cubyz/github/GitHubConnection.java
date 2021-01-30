@@ -27,10 +27,10 @@ public class GitHubConnection {
 	/**
 	 * Connect to github and get an array of all existing releases.
 	 */
-	public static GithubRelease[] downloadReleaseData() {
+	public static GithubRelease[] downloadReleaseData(String link) {
 		String json = "";
 		try {
-			URL url = new URL("https://api.github.com/repos/PixelGuys/Cubyz/releases?per_page=100");
+			URL url = new URL(link);
 			HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
 			connection.connect();
 			InputStream stream = connection.getInputStream();

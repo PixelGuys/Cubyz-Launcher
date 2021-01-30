@@ -5,6 +5,7 @@ import io.cubyz.ui.MainGUI;
 
 public class Main {
 	public static void main(String[] args) {
-		new MainGUI(GitHubConnection.downloadReleaseData());
+		AutoUpdater.tryUpdate();
+		new MainGUI(GitHubConnection.downloadReleaseData("https://api.github.com/repos/PixelGuys/Cubyz/releases?per_page=100"));
 	}
 }

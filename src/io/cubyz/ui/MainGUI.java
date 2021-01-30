@@ -23,8 +23,6 @@ import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -141,11 +139,7 @@ public class MainGUI extends JFrame implements ActionListener {
 					JOptionPane.showMessageDialog(this, "Sorry. This version is not available for your OS. Please contact us on github or on our discord server.");
 					return;
 				}
-				URL website = new URL(exec.url);
-				ReadableByteChannel rbc = Channels.newChannel(website.openStream());
-				FileOutputStream fos = new FileOutputStream(dir.getAbsolutePath()+"/main.jar");
-				fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-				fos.close();
+				exec.downloadToFile(dir.getAbsolutePath()+"/main.jar");
 			}
 			// Download assets and addons:
 			File assetsFolder = new File(dir.getAbsolutePath()+"/assets");

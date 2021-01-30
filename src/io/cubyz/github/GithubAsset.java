@@ -1,7 +1,11 @@
 package io.cubyz.github;
 
 import java.awt.image.BufferedImage;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 
 import javax.imageio.ImageIO;
 
@@ -18,6 +22,18 @@ public class GithubAsset {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
+		}
+	}
+	
+	public void downloadToFile(String file) {
+		try {
+			URL website = new URL(url);
+			ReadableByteChannel rbc = Channels.newChannel(website.openStream());
+			FileOutputStream fos = new FileOutputStream(file);
+			fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+			fos.close();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 }
