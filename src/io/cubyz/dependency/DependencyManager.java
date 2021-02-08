@@ -56,6 +56,7 @@ public class DependencyManager {
 	}
 	private static MyNode root;
 	public static ArrayList<String> fetchDependencies(GithubAsset pom, String absolutePath) {
+		if(!absolutePath.endsWith("/")) absolutePath += "/";
 		ArrayList<String> paths = new ArrayList<>(); // Paths to dependency location on disk.
 		try {
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
