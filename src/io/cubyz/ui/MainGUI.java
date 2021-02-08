@@ -7,6 +7,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import io.cubyz.OSInfo;
+import io.cubyz.dependency.DependencyManager;
 import io.cubyz.github.GithubAsset;
 import io.cubyz.github.GithubRelease;
 
@@ -23,6 +24,7 @@ import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -127,10 +129,10 @@ public class MainGUI extends JFrame implements ActionListener {
 			}
 			File runnableJar = new File(dir.getAbsolutePath()+"/main.jar");
 			if(!runnableJar.exists()) {
-				// Find the correct executable for this OS:
+				// Find the correct executable jar:
 				GithubAsset exec = null;
 				for(GithubAsset asset : selected.assets) {
-					if(asset.name.contains(OSInfo.OS) && asset.name.contains(OSInfo.ARCH)) {
+					if(asset.name.contains(".jar")) {
 						exec = asset;
 						break;
 					}
@@ -174,7 +176,25 @@ public class MainGUI extends JFrame implements ActionListener {
 					downloadAndUnzip(addons.url, dir.getAbsolutePath());
 				}
 			}
-			ProcessBuilder pb = new ProcessBuilder("java", "-jar", dir.getAbsolutePath()+"/main.jar");
+			// Download libraries:
+			GithubAsset pom = null;
+			for(GithubAsset asset : selected.assets) {
+				if(asset.name.equals("pom.xml")) {
+					pom = asset;
+					break;
+				}
+			}
+			ArrayList<String> libs = DependencyManager.fetchDependencies(pom, path);
+			// Put it all together as a classpath attribute:
+			char classpathSeperator = OSInfo.OS_FAMILY.equals("windows") ? ';' : ':';
+			String classpath = "";
+			for(String lib : libs) {
+				classpath += lib+classpathSeperator;
+			}
+			// Add the executable jar to the classpath:
+			classpath += dir.getAbsolutePath()+"/main.jar";
+			
+			ProcessBuilder pb = new ProcessBuilder("java", "-cp", classpath, "io.cubyz.client.GameLauncher");
 			pb.directory(dir);
 			pb.redirectOutput(Redirect.INHERIT);
 			pb.redirectError(Redirect.INHERIT);

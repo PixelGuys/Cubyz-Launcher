@@ -3,6 +3,7 @@ package io.cubyz.github;
 import java.awt.image.BufferedImage;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
@@ -35,5 +36,15 @@ public class GithubAsset {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public InputStream downloadToStream() {
+		try {
+			URL website = new URL(url);
+			return website.openStream();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }
