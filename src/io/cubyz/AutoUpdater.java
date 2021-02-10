@@ -9,7 +9,7 @@ import io.cubyz.github.GithubRelease;
 import io.cubyz.ui.MainGUI;
 
 public class AutoUpdater {
-	public static final String versionString = "0.1";
+	public static final String versionString = "0.2";
 	public static void tryUpdate() {
 		try {
 			GithubRelease newest = GitHubConnection.downloadReleaseData("https://api.github.com/repos/PixelGuys/Cubyz-Launcher/releases?per_page=1")[0];
