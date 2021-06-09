@@ -17,7 +17,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import io.cubyz.OSInfo;
-import io.cubyz.github.GithubAsset;
+import io.cubyz.util.DownloadAndFileManager;
 import io.cubyz.util.SimpleMap;
 
 /**
@@ -55,7 +55,7 @@ public class DependencyManager {
 		}
 	}
 	private static MyNode root;
-	public static ArrayList<String> fetchDependencies(GithubAsset pom, String absolutePath) {
+	public static ArrayList<String> fetchDependencies(String pomURL, String absolutePath, File pom) {
 		if(!absolutePath.endsWith("/")) absolutePath += "/";
 		ArrayList<String> paths = new ArrayList<>(); // Paths to dependency location on disk.
 		try {
@@ -63,7 +63,7 @@ public class DependencyManager {
 			factory.setIgnoringComments(true);
 			factory.setIgnoringElementContentWhitespace(true);
 			DocumentBuilder builder = factory.newDocumentBuilder();
-			Document doc = builder.parse(pom.downloadToStream());
+			Document doc = builder.parse(DownloadAndFileManager.downloadToStream(pomURL, pom));
 			parse(doc);
 			insertVariables();
 			ArrayList<Dependency> dependencies = getDependencyList();

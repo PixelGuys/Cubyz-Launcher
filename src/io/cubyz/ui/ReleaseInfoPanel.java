@@ -4,11 +4,13 @@ import javax.swing.JPanel;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.image.BufferedImage;
+import java.io.File;
 
 import javax.swing.JLabel;
 import javax.swing.JTextPane;
 
-import io.cubyz.github.GithubRelease;
+import io.cubyz.github.GitHubConnection;
+import io.cubyz.util.DownloadAndFileManager;
 
 import java.awt.Component;
 import java.awt.Container;
@@ -18,27 +20,40 @@ import java.awt.LayoutManager;
 
 import javax.swing.JCheckBox;
 
+@SuppressWarnings("serial")
 public class ReleaseInfoPanel extends JPanel implements LayoutManager {
 	private final JLabel name = new JLabel();
 	final JCheckBox moreInfo = new JCheckBox("more info");
 	private final JTextPane info = new JTextPane();
-	final GithubRelease release;
+	File folder;
+	String tag = "";
+	String title = "";
+	String description = "";
 	private BufferedImage image = null;
 	private final MainGUI container;
 	private int maxWidth;
 	private int imageY;
 
-	public ReleaseInfoPanel(GithubRelease githubRelease, MainGUI container, int width) {
+	public ReleaseInfoPanel(File releaseInfo, MainGUI container, int width) {
 		setLayout(this);
 		this.container = container;
-		release = githubRelease;
-		name.setText(release.name);
+		// Extract general info:
+		String releaseString = DownloadAndFileManager.readToString(releaseInfo);
+		int endOfLine = releaseString.indexOf("\n");
+		tag = releaseString.substring(0, endOfLine);
+		releaseString = releaseString.substring(endOfLine + 1);
+		endOfLine = releaseString.indexOf("\n");
+		title = releaseString.substring(0, endOfLine);
+		description = releaseString.substring(endOfLine + 1).replaceAll("\n", "<br>");
+		name.setText(title);
+		
+		folder = releaseInfo.getParentFile();
 		moreInfo.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
 				if(moreInfo.isSelected()) {
-					info.setText(release.description);
-					image = release.getImage();
+					info.setText(description);
+					image = GitHubConnection.readOrDownloadImage(folder);
 				} else {
 					info.setText("");
 					image = null;

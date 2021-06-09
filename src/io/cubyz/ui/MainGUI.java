@@ -6,10 +6,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import io.cubyz.OSInfo;
-import io.cubyz.dependency.DependencyManager;
-import io.cubyz.github.GithubAsset;
-import io.cubyz.github.GithubRelease;
+import io.cubyz.github.GitHubConnection;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -17,24 +14,17 @@ import javax.swing.JScrollPane;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.lang.ProcessBuilder.Redirect;
-import java.net.URL;
-import java.net.URLDecoder;
 import java.util.ArrayList;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
+import java.util.Comparator;
 
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JComboBox;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
+@SuppressWarnings("serial")
 public class MainGUI extends JFrame implements ActionListener {
 
 	private JPanel contentPane;
@@ -46,9 +36,9 @@ public class MainGUI extends JFrame implements ActionListener {
 	private final JLabel latestVersions = new JLabel("Latest Versions:");
 	private final JLabel currentVersion = new JLabel("Current Version:");
 	private final JComboBox<String> comboBox = new JComboBox<String>();
-	private final ReleaseInfoPanel[] releases;
+	private final ArrayList<ReleaseInfoPanel> releases = new ArrayList<>();
 
-	public MainGUI(GithubRelease[] releases) {
+	public MainGUI() {
 		super("Cubyz Launcher");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 800, 600);
@@ -81,10 +71,6 @@ public class MainGUI extends JFrame implements ActionListener {
 		);
 		playPanel.setLayout(layout);
 		
-		for(GithubRelease release : releases) {
-			comboBox.addItem(release.version);
-		}
-		
 		play.addActionListener(this);
 
 		contentPane.add(infoPanel, BorderLayout.CENTER);
@@ -97,12 +83,27 @@ public class MainGUI extends JFrame implements ActionListener {
 		int width = scrollPane.getWidth();
 		scrollPanel.setLayout(new BoxLayout(scrollPanel, BoxLayout.Y_AXIS));
 		
-		this.releases = new ReleaseInfoPanel[releases.length];
-		for(int i = 0; i < releases.length; i++) {
-			this.releases[i] = new ReleaseInfoPanel(releases[i], this, width);
-			scrollPanel.add(this.releases[i]);
+		// Get the release selection:
+		File home = new File(System.getProperty("user.home") + "/.cubyz");
+		for(File file : home.listFiles()) {
+			if(new File(file, "release_info").exists()) {
+				releases.add(new ReleaseInfoPanel(new File(file, "release_info"), this, width));
+			}
 		}
-		this.releases[0].moreInfo.setSelected(true);
+		releases.sort(new Comparator<ReleaseInfoPanel>() {
+			@Override
+			public int compare(ReleaseInfoPanel r1, ReleaseInfoPanel r2) {
+				return -r1.folder.getName().compareTo(r2.folder.getName());
+			}
+		});
+		releases.get(0).moreInfo.setSelected(true);
+		
+		// Add the version selection:
+		for(ReleaseInfoPanel release : releases) {
+			scrollPanel.add(release);
+			comboBox.addItem(release.tag);
+		}
+		
 		setVisible(true);
 	}
 
@@ -110,125 +111,15 @@ public class MainGUI extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// Search the selected release:
-		GithubRelease selected = null;
+		ReleaseInfoPanel selected = null;
 		for(ReleaseInfoPanel release : releases) {
-			if(release.release.version == comboBox.getSelectedItem()) {
-				selected = release.release;
+			if(release.tag == comboBox.getSelectedItem()) {
+				selected = release;
 				break;
 			}
 		}
-		// Check if the files already exist, otherwise download them:
-		try {
-			// Store game data in the home directory:
-			String path = System.getProperty("user.home") + "/.cubyz";
-			File dir = new File(path+"/"+selected.version);
-			if(!dir.exists()) {
-				dir.mkdirs();
-			}
-			File runnableJar = new File(dir.getAbsolutePath()+"/main.jar");
-			if(!runnableJar.exists()) {
-				// Find the correct executable jar:
-				GithubAsset exec = null;
-				for(GithubAsset asset : selected.assets) {
-					if(asset.name.contains(".jar")) {
-						exec = asset;
-						break;
-					}
-				}
-				if(exec == null) {
-					JOptionPane.showMessageDialog(this, "Sorry. This version is not available for your OS. Please contact us on github or on our discord server.");
-					return;
-				}
-				exec.downloadToFile(dir.getAbsolutePath()+"/main.jar");
-			}
-			// Download assets and addons:
-			File assetsFolder = new File(dir.getAbsolutePath()+"/assets");
-			if(!assetsFolder.exists()) {
-				// Find the correct github asset:
-				GithubAsset assets = null;
-				for(GithubAsset asset : selected.assets) {
-					if(asset.name.equals("assets.zip")) {
-						assets = asset;
-						break;
-					}
-				}
-				// Maybe in future version the assets folder doesn't exist anymore? So just checking, to be sure.
-				if(assets != null) {
-					// Download and unzip the file:
-					downloadAndUnzip(assets.url, dir.getAbsolutePath());
-				}
-			}
-			File addonsFolder = new File(dir.getAbsolutePath()+"/addons");
-			if(!addonsFolder.exists()) {
-				// Find the correct github asset:
-				GithubAsset addons = null;
-				for(GithubAsset asset : selected.assets) {
-					if(asset.name.equals("addons.zip")) {
-						addons = asset;
-						break;
-					}
-				}
-				// Past versions of cubyz didn't have addons folder.
-				if(addons != null) {
-					// Download and unzip the file:
-					downloadAndUnzip(addons.url, dir.getAbsolutePath());
-				}
-			}
-			// Download libraries:
-			GithubAsset pom = null;
-			for(GithubAsset asset : selected.assets) {
-				if(asset.name.equals("pom.xml")) {
-					pom = asset;
-					break;
-				}
-			}
-			ArrayList<String> libs = DependencyManager.fetchDependencies(pom, path);
-			// Put it all together as a classpath attribute:
-			char classpathSeperator = OSInfo.OS_FAMILY.equals("windows") ? ';' : ':';
-			String classpath = "";
-			for(String lib : libs) {
-				classpath += lib+classpathSeperator;
-			}
-			// Add the executable jar to the classpath:
-			classpath += dir.getAbsolutePath()+"/main.jar";
-			
-			ProcessBuilder pb = new ProcessBuilder("java", "-cp", classpath, "io.cubyz.client.GameLauncher");
-			pb.directory(dir);
-			pb.redirectOutput(Redirect.INHERIT);
-			pb.redirectError(Redirect.INHERIT);
-			pb.start();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-	}
-	
-	private static void downloadAndUnzip(String url, String outputPath) throws IOException {
-		File destDir = new File(outputPath);
-		if (!destDir.exists()) {
-			destDir.mkdir();
-		}
-		ZipInputStream zipIn = new ZipInputStream(new URL(url).openStream());
-		ZipEntry entry = zipIn.getNextEntry();
-		// iterates over entries in the zip file
-		while(entry != null) {
-			String filePath = outputPath + File.separator + entry.getName();
-			if(!entry.isDirectory()) {
-				// if the entry is a file, extract it
-				BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath));
-				byte[] bytesIn = new byte[4096];
-				int read = 0;
-				while((read = zipIn.read(bytesIn)) != -1) {
-					bos.write(bytesIn, 0, read);
-				}
-				bos.close();
-			} else {
-				// if the entry is a directory, make the directory
-				File dir = new File(filePath);
-				dir.mkdirs();
-			}
-			zipIn.closeEntry();
-			entry = zipIn.getNextEntry();
-		}
-		zipIn.close();
+		
+		if(selected != null)
+			GitHubConnection.downloadAndLaunchRelease(selected.folder);
 	}
 }
