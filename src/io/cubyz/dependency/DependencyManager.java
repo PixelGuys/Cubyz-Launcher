@@ -77,8 +77,17 @@ public class DependencyManager {
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
-		root = null;
 		return paths;
+	}
+
+	public static String findMainClass() {
+		MyNode plugins = root.get("project").get("build").get("plugins");
+		for(MyNode plugin : plugins.childs) {
+			if(plugin.get("artifactId").value.equals("maven-jar-plugin")) {
+				return plugin.get("configuration").get("archive").get("manifest").get("mainClass").value;
+			}
+		}
+		return "io.cubyz.client.GameLauncher";
 	}
 	
 	private static void downloadDependencies(ArrayList<Dependency> dependencies, ArrayList<String> paths, String url) {

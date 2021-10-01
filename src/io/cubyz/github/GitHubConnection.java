@@ -122,6 +122,7 @@ public class GitHubConnection {
 		
 		// Build the classpath:
 		ArrayList<String> libs = DependencyManager.fetchDependencies("https://github.com/PixelGuys/Cubyz/releases/download/"+tag+"/pom.xml", System.getProperty("user.home") + "/.cubyz", new File(folder, "pom.xml"));
+		
 		// Put it all together as a classpath attribute:
 		char classpathSeperator = OSInfo.OS_FAMILY.equals("windows") ? ';' : ':';
 		String classpath = "";
@@ -132,7 +133,7 @@ public class GitHubConnection {
 		classpath += folder.getAbsolutePath()+"/main.jar";
 		
 		// Launch it:
-		ProcessBuilder pb = new ProcessBuilder("java", "-cp", classpath, "io.cubyz.client.GameLauncher");
+		ProcessBuilder pb = new ProcessBuilder("java", "-cp", classpath, DependencyManager.findMainClass());
 		pb.directory(folder);
 		pb.redirectOutput(Redirect.INHERIT);
 		pb.redirectError(Redirect.INHERIT);
