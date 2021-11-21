@@ -8,7 +8,7 @@ import io.cubyz.github.GitHubConnection;
 import io.cubyz.ui.MainGUI;
 
 public class Main {
-	public static final int RELEASE_NUMBER = 2;
+	public static final int RELEASE_NUMBER = 3;
 	public static void main(String[] args) {
 		// Check if a new version is available:
 		try {

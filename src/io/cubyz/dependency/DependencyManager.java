@@ -186,7 +186,7 @@ public class DependencyManager {
 				if(osProperty.name.equals("family")) {
 					ret &= OSInfo.OS_FAMILY.equals(osProperty.value.toLowerCase());
 				} else if(osProperty.name.equals("arch")) {
-					ret &= OSInfo.OS_ARCH.contains(osProperty.value.toLowerCase());
+					ret &= OSInfo.isArch(osProperty.value.toLowerCase());
 				} else if(osProperty.name.equals("name")) {
 					ret &= OSInfo.OS_NAME.contains(osProperty.value.toLowerCase());
 				} else {
