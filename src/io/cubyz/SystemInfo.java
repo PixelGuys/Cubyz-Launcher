@@ -1,6 +1,8 @@
 package io.cubyz;
 
 import java.util.Locale;
+import com.sun.jna.Library;
+import com.sun.jna.Native;
 
 // Stores OS and arch-type to download the correct natives.
 
@@ -23,6 +25,28 @@ public class SystemInfo {
 		} else {
 			return OS_ARCH.contains(arch);
 		}
+	}
+	
+	public static void changeWorkingDirectory(String newDir) {
+		if(OS_FAMILY.equals("windows")) {
+			MyKernel32.INSTANCE.SetCurrentDirectoryW(newDir.toCharArray());
+		} else {
+			MyCLibrary.INSTANCE.chdir(newDir);
+		}
+	}
+	
+	private static interface MyKernel32 extends Library {
+		public MyKernel32 INSTANCE = (MyKernel32) Native.loadLibrary("Kernel32", MyKernel32.class);
+	
+		/** BOOL SetCurrentDirectory( LPCTSTR lpPathName ); */
+		int SetCurrentDirectoryW(char[] pathName);
+	}
+	
+	private interface MyCLibrary extends Library {
+		MyCLibrary INSTANCE = (MyCLibrary) Native.loadLibrary("c", MyCLibrary.class);
+	
+		/** int chdir(const char *path); */
+		int chdir( String path );
 	}
 	
 }
