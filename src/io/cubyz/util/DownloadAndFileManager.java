@@ -30,6 +30,7 @@ public class DownloadAndFileManager {
 		FileOutputStream fos = new FileOutputStream(file);
 		fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
 		fos.close();
+		System.out.println("Successfully downloaded file from "+url+" into "+file.getAbsolutePath());
 	}
 	/**
 	 * Downloads a file from the web(if not present in the file system) and puts it into a stream.
@@ -75,6 +76,7 @@ public class DownloadAndFileManager {
 			entry = zipIn.getNextEntry();
 		}
 		zipIn.close();
+		System.out.println("Successfully downloaded and unzipped file from "+url+" into "+outputFolder.getAbsolutePath());
 	}
 	public static BufferedImage readImage(File file) {
 		try {

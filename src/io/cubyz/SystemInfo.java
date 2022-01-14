@@ -4,10 +4,13 @@ import java.util.Locale;
 
 // Stores OS and arch-type to download the correct natives.
 
-public class OSInfo {
+public class SystemInfo {
 	public static final String OS_NAME = System.getProperty("os.name").toLowerCase(Locale.US);
 	public static final String OS_ARCH = System.getProperty("os.arch").toLowerCase(Locale.US);
 	public static final String OS_FAMILY = getOSFamily();
+	
+	public static final int JAVA_VERSION = Integer.parseInt(System.getProperty("java.version").replaceAll("^1\\.", "").replaceAll("\\..*", ""));
+	
 	private static String getOSFamily() {
 		if(OS_NAME.contains("win")) return "windows";
 		if(OS_NAME.contains("mac")) return "mac";
@@ -21,4 +24,5 @@ public class OSInfo {
 			return OS_ARCH.contains(arch);
 		}
 	}
+	
 }

@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.lang.ProcessBuilder.Redirect;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
@@ -14,7 +13,7 @@ import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
 
-import io.cubyz.OSInfo;
+import io.cubyz.SystemInfo;
 import io.cubyz.dependency.DependencyManager;
 import io.cubyz.util.DownloadAndFileManager;
 
@@ -98,15 +97,15 @@ public class GitHubConnection {
 			} catch(IOException e) {
 				try {
 					// The old version 0.6.0 packaged the libraries into the jar file, so there are multiple files for each OS and arch:
-					if(OSInfo.OS_FAMILY.equals("windows")) {
-						if(OSInfo.OS_ARCH.contains("64")) {
+					if(SystemInfo.OS_FAMILY.equals("windows")) {
+						if(SystemInfo.OS_ARCH.contains("64")) {
 							link = "https://github.com/PixelGuys/Cubyz/releases/download/"+tag+"/Cubyz_win_64.jar";
 						} else {
 							link = "https://github.com/PixelGuys/Cubyz/releases/download/"+tag+"/Cubyz_win_x86.jar";
 						}
 						DownloadAndFileManager.downloadToFile(jarLocation, link);
-					} else if(OSInfo.OS_FAMILY.equals("unix")) {
-						if(OSInfo.OS_ARCH.contains("64")) {
+					} else if(SystemInfo.OS_FAMILY.equals("unix")) {
+						if(SystemInfo.OS_ARCH.contains("64")) {
 							link = "https://github.com/PixelGuys/Cubyz/releases/download/"+tag+"/Cubyz_win_64.jar";
 							DownloadAndFileManager.downloadToFile(jarLocation, link);
 						}
@@ -122,9 +121,15 @@ public class GitHubConnection {
 		
 		// Build the classpath:
 		ArrayList<String> libs = DependencyManager.fetchDependencies("https://github.com/PixelGuys/Cubyz/releases/download/"+tag+"/pom.xml", System.getProperty("user.home") + "/.cubyz", new File(folder, "pom.xml"));
-		
+
+		int minJavaVersion = DependencyManager.findJavaVersion(new File(folder, "pom.xml"));
+		if(minJavaVersion > SystemInfo.JAVA_VERSION) {
+			JOptionPane.showInternalMessageDialog(null, "You need to install a higher java version to run this version of Cubyz. Your current version is java "+SystemInfo.JAVA_VERSION+". You require at least java "+minJavaVersion+".", "Error", JOptionPane.INFORMATION_MESSAGE);
+			return;
+		}
+
 		// Put it all together as a classpath attribute:
-		char classpathSeperator = OSInfo.OS_FAMILY.equals("windows") ? ';' : ':';
+		char classpathSeperator = SystemInfo.OS_FAMILY.equals("windows") ? ';' : ':';
 		String classpath = "";
 		for(String lib : libs) {
 			classpath += lib+classpathSeperator;
@@ -134,14 +139,18 @@ public class GitHubConnection {
 		
 		// Launch it:
 		ProcessBuilder pb = new ProcessBuilder("java", "-cp", classpath, DependencyManager.findMainClass());
+		System.out.println("Command: " + pb.command());
 		pb.directory(folder);
-		pb.redirectOutput(Redirect.INHERIT);
-		pb.redirectError(Redirect.INHERIT);
+		pb.redirectOutput(new File(System.getProperty("user.home") + "/.cubyz/game.log"));
 		try {
-			pb.start();
-		} catch (IOException e) {
+			Process p = pb.start();
+			System.out.println("Started...");
+			p.waitFor();
+			System.out.println("Finished");
+		} catch (Exception e) {
 			StringWriter sw = new StringWriter();
 			e.printStackTrace(new PrintWriter(sw));
+			e.printStackTrace();
 			String exceptionAsString = sw.toString();
 			JOptionPane.showInternalMessageDialog(null, "Couldn't launch this version. "+exceptionAsString, "information", JOptionPane.INFORMATION_MESSAGE);
 		}

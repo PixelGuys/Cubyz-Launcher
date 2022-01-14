@@ -16,7 +16,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import io.cubyz.OSInfo;
+import io.cubyz.SystemInfo;
 import io.cubyz.util.DownloadAndFileManager;
 import io.cubyz.util.SimpleMap;
 
@@ -79,6 +79,11 @@ public class DependencyManager {
 		}
 		return paths;
 	}
+	
+	public static int findJavaVersion(File pom) {
+		String xml = DownloadAndFileManager.readToString(pom);
+		return Integer.parseInt(xml.replaceAll("\\p{all}*<target>", "").replaceAll("</target>\\p{all}*", "").replaceAll("^1\\.", ""));
+	}
 
 	public static String findMainClass() {
 		MyNode plugins = root.get("project").get("build").get("plugins");
@@ -106,6 +111,7 @@ public class DependencyManager {
 					FileOutputStream fos = new FileOutputStream(file);
 					fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
 					fos.close();
+					System.out.println("Successfully downloaded library from "+depURL+" into "+file.getAbsolutePath());
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -184,11 +190,11 @@ public class DependencyManager {
 			boolean ret = true;
 			for(MyNode osProperty : condition.childs) {
 				if(osProperty.name.equals("family")) {
-					ret &= OSInfo.OS_FAMILY.equals(osProperty.value.toLowerCase());
+					ret &= SystemInfo.OS_FAMILY.equals(osProperty.value.toLowerCase());
 				} else if(osProperty.name.equals("arch")) {
-					ret &= OSInfo.isArch(osProperty.value.toLowerCase());
+					ret &= SystemInfo.isArch(osProperty.value.toLowerCase());
 				} else if(osProperty.name.equals("name")) {
-					ret &= OSInfo.OS_NAME.contains(osProperty.value.toLowerCase());
+					ret &= SystemInfo.OS_NAME.contains(osProperty.value.toLowerCase());
 				} else {
 					System.out.println("Unsupported OS property "+osProperty.name+"! Assuming it is false.");
 					return false;
