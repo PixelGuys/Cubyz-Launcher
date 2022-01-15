@@ -4,15 +4,12 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Method;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 
 import javax.swing.JOptionPane;
 
@@ -132,55 +129,31 @@ public class GitHubConnection {
 		}
 		
 		// Put it all together as a classpath attribute:
-		ArrayList<String> classPath = new ArrayList<>();
+		char classpathSeperator = SystemInfo.OS_FAMILY.equals("windows") ? ';' : ':';
+		String classpath = "";
 		for(String lib : libs) {
-			classPath.add(lib);
+			classpath += lib+classpathSeperator;
 		}
 		// Add the executable jar to the classpath:
-		classPath.add(folder.getAbsolutePath()+"/main.jar");
-		runGame(classPath, folder.getAbsolutePath()+"/main.jar", folder.getAbsolutePath());
-		System.gc(); // GC away the loaded classes.
-	}
-	
-	public static void runGame(ArrayList<String> classPath, String pathToGame, String folder) {
+		classpath += folder.getAbsolutePath()+"/main.jar";
+		
+		// Launch it:
+		String javaPath = new File(System.getProperty("java.home"),"bin/java").getAbsolutePath(); // Using the same java executable that the launcher was started with.
+		ProcessBuilder pb = new ProcessBuilder(javaPath, "-cp", classpath, DependencyManager.findMainClass());
+		System.out.println("Command: " + pb.command());
+		pb.directory(folder);
+		pb.redirectOutput(new File(System.getProperty("user.home") + "/.cubyz/game.log"));
 		try {
-			JarFile jarFile = new JarFile(pathToGame);
-			Enumeration<JarEntry> jarEntries = jarFile.entries();
-			URL[] urls = new URL[classPath.size()];
-			for(int i = 0; i < classPath.size(); i++) {
-				urls[i] =new URL("jar:file:" + classPath.get(i) + "!/");
-			}
-			URLClassLoader cl = URLClassLoader.newInstance(urls);
-	
-			// Find the main class:
-			Class<?> main = null;
-			while (jarEntries.hasMoreElements()) {
-				JarEntry je = jarEntries.nextElement();
-				if(je.getName().endsWith("GameLauncher.class")) {
-					// -6 because of .class
-					String className = je.getName().substring(0, je.getName().length()-6);
-					className = className.replace('/', '.');
-					main = cl.loadClass(className);
-					break;
-				}
-			}
-			jarFile.close();
-			
-			if(main == null) {
-				System.out.println("Couldn't find GameLauncher class.");
-				return;
-			}
-			String oldCWD = System.getProperty("user.dir");
-			SystemInfo.changeWorkingDirectory(folder);
-			try {
-				Method meth = main.getMethod("main", String[].class);
-				meth.invoke(null, (Object) new String[0]);
-			} catch(Exception e) {
-				e.printStackTrace();
-			}
-			SystemInfo.changeWorkingDirectory(oldCWD);
-		} catch(IOException | ClassNotFoundException e) {
+			Process p = pb.start();
+			System.out.println("Started...");
+			p.waitFor();
+			System.out.println("Finished");
+		} catch (Exception e) {
+			StringWriter sw = new StringWriter();
+			e.printStackTrace(new PrintWriter(sw));
 			e.printStackTrace();
+			String exceptionAsString = sw.toString();
+			JOptionPane.showInternalMessageDialog(null, "Couldn't launch this version. "+exceptionAsString, "information", JOptionPane.INFORMATION_MESSAGE);
 		}
 	}
 }
