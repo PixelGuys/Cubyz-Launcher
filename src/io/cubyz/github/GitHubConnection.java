@@ -115,7 +115,7 @@ public class GitHubConnection {
 		}
 		if(!jarLocation.exists()) {
 			// Something went wrong in the download.
-			JOptionPane.showInternalMessageDialog(null, "Couldn't download file. Please check your internet connection.", "information", JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Couldn't download file. Please check your internet connection.", "information", JOptionPane.INFORMATION_MESSAGE);
 			return;
 		}
 		
@@ -124,7 +124,7 @@ public class GitHubConnection {
 
 		int minJavaVersion = DependencyManager.findJavaVersion(new File(folder, "pom.xml"));
 		if(minJavaVersion > SystemInfo.JAVA_VERSION) {
-			JOptionPane.showInternalMessageDialog(null, "You need to install a higher java version to run this version of Cubyz. Your current version is java "+SystemInfo.JAVA_VERSION+". You require at least java "+minJavaVersion+".", "Error", JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(null, "You need to install a higher java version to run this version of Cubyz. Your current version is java "+SystemInfo.JAVA_VERSION+". You require at least java "+minJavaVersion+".", "Error", JOptionPane.INFORMATION_MESSAGE);
 			return;
 		}
 		
@@ -153,7 +153,7 @@ public class GitHubConnection {
 			e.printStackTrace(new PrintWriter(sw));
 			e.printStackTrace();
 			String exceptionAsString = sw.toString();
-			JOptionPane.showInternalMessageDialog(null, "Couldn't launch this version. "+exceptionAsString, "information", JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Couldn't launch this version. "+exceptionAsString, "information", JOptionPane.INFORMATION_MESSAGE);
 		}
 	}
 }

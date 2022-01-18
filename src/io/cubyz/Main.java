@@ -11,7 +11,7 @@ import io.cubyz.github.GitHubConnection;
 import io.cubyz.ui.MainGUI;
 
 public class Main {
-	public static final int RELEASE_NUMBER = 5;
+	public static final int RELEASE_NUMBER = 6;
 	
 	public static void main(String[] args) {
 		// Change System.out to write to a file.
@@ -33,7 +33,7 @@ public class Main {
 			url.openStream().close();
 			// If no exception was thrown, there is a new launcher version.
 			// Prompt the user to update:
-			JOptionPane.showInternalMessageDialog(null, "A new update of launcher is available.", "information", JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(null, "A new update of launcher is available.", "information", JOptionPane.INFORMATION_MESSAGE);
 		} catch(Exception e) {}
 		GitHubConnection.downloadReleaseData();
 		new MainGUI();
