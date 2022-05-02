@@ -83,7 +83,9 @@ public class GitHubConnection {
 			try {
 				DownloadAndFileManager.downloadAndUnzip(folder, link);
 			} catch(IOException e) {
-				// That's normal behaviour. Not every release needs this folder.
+				if(!tag.equals("R1")) {
+					e.printStackTrace();
+				}
 			}
 			
 			// Dependencies:
@@ -142,7 +144,6 @@ public class GitHubConnection {
 		ProcessBuilder pb = new ProcessBuilder(javaPath, "-cp", classpath, DependencyManager.findMainClass());
 		System.out.println("Command: " + pb.command());
 		pb.directory(folder);
-		pb.redirectOutput(new File(System.getProperty("user.home") + "/.cubyz/game.log"));
 		try {
 			Process p = pb.start();
 			System.out.println("Started...");

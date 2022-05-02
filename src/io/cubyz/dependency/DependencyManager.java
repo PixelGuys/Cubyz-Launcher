@@ -72,8 +72,8 @@ public class DependencyManager {
 				if(!dep.classifier.isEmpty()) path += "-"+dep.classifier;
 				path += ".jar";
 				paths.add(path);
+				downloadDependency(dep, path, root.get("project").get("repositories"));
 			}
-			downloadDependencies(dependencies, paths, root.get("project").get("repositories").get("repository").get("url").value);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -95,13 +95,14 @@ public class DependencyManager {
 		return "io.cubyz.client.GameLauncher";
 	}
 	
-	private static void downloadDependencies(ArrayList<Dependency> dependencies, ArrayList<String> paths, String url) {
-		for(int i = 0; i < dependencies.size(); i++) {
-			// Check if the library is already present, otherwise download it:
-			File file = new File(paths.get(i));
-			if(!file.exists()) {
-				Dependency dep = dependencies.get(i);
-				file.getParentFile().mkdirs();
+	private static void downloadDependency(Dependency dep, String path, MyNode repositories) {
+		// Check if the library is already present, otherwise download it:
+		File file = new File(path);
+		if(!file.exists()) {
+			file.getParentFile().mkdirs();
+			ArrayList<Exception> exceptions = new ArrayList<>();
+			for(MyNode repo: repositories.childs) {
+				String url = repo.get("url").value;
 				try {
 					String depURL = url + "/" + dep.groupId.replaceAll("\\.", "/") + "/" + dep.artifactId.replaceAll("\\.", "/") + "/" + dep.version + "/" + dep.artifactId + "-" + dep.version;
 					if(!dep.classifier.isEmpty()) depURL += "-"+dep.classifier;
@@ -112,9 +113,15 @@ public class DependencyManager {
 					fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
 					fos.close();
 					System.out.println("Successfully downloaded library from "+depURL+" into "+file.getAbsolutePath());
+					return;
 				} catch (IOException e) {
-					e.printStackTrace();
+					exceptions.add(e);
 				}
+			}
+			// Couldn't download the thing. Print the exception of every url, as it might be helpful:
+			System.out.println("Couldn't downloaded library "+dep.groupId+"/"+dep.artifactId+"/"+dep.version+".");
+			for(Exception e: exceptions) {
+				e.printStackTrace();
 			}
 		}
 	}
