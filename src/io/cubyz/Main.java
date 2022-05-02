@@ -11,7 +11,7 @@ import io.cubyz.github.GitHubConnection;
 import io.cubyz.ui.MainGUI;
 
 public class Main {
-	public static final int RELEASE_NUMBER = 6;
+	public static final int RELEASE_NUMBER = 7;
 	
 	public static void main(String[] args) {
 		// Change System.out to write to a file.
