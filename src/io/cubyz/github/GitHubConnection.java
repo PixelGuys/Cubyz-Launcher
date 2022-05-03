@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.ProcessBuilder.Redirect;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
@@ -144,6 +145,8 @@ public class GitHubConnection {
 		ProcessBuilder pb = new ProcessBuilder(javaPath, "-cp", classpath, DependencyManager.findMainClass());
 		System.out.println("Command: " + pb.command());
 		pb.directory(folder);
+		pb.redirectError(Redirect.INHERIT);
+		pb.redirectOutput(Redirect.INHERIT);
 		try {
 			Process p = pb.start();
 			System.out.println("Started...");
