@@ -35,6 +35,7 @@ public class Main {
 			// Prompt the user to update:
 			JOptionPane.showMessageDialog(null, "A new update of launcher is available.", "information", JOptionPane.INFORMATION_MESSAGE);
 		} catch(Exception e) {}
+		JOptionPane.showMessageDialog(null, "The Java version of the game and the Java launcher are deprecated and will no longer receive any updates. Newer versions of the game are available in the Zig version.", "information", JOptionPane.INFORMATION_MESSAGE);
 		GitHubConnection.downloadReleaseData();
 		new MainGUI();
 	}

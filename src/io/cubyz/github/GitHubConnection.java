@@ -34,7 +34,7 @@ public class GitHubConnection {
 				if(file.exists()) continue;
 				
 				// Tests if the version `i` is available if so reads the file, otherwise throws an Exception.
-				String link = "https://github.com/PixelGuys/Cubyz/releases/download/R"+i+"/release_info";
+				String link = "https://github.com/PixelGuys/Cubyz-Java/releases/download/R"+i+"/release_info";
 				URL url = new URL(link);
 				ReadableByteChannel rbc = Channels.newChannel(url.openStream());
 				new File(System.getProperty("user.home") + "/.cubyz/" + "R" + i).mkdirs(); // Create the directory.
@@ -53,7 +53,7 @@ public class GitHubConnection {
 		if(!imageLocation.exists()) {
 			// Download the image:
 			String tag = folder.getName();
-			String link = "https://github.com/PixelGuys/Cubyz/releases/download/"+tag+"/image.png";
+			String link = "https://github.com/PixelGuys/Cubyz-Java/releases/download/"+tag+"/image.png";
 			try {
 				DownloadAndFileManager.downloadToFile(imageLocation, link);
 			} catch(IOException e) {
@@ -72,7 +72,7 @@ public class GitHubConnection {
 			// The game files need to be downloaded.
 			
 			// Addons folder:
-			String link = "https://github.com/PixelGuys/Cubyz/releases/download/"+tag+"/addons.zip";
+			String link = "https://github.com/PixelGuys/Cubyz-Java/releases/download/"+tag+"/addons.zip";
 			try {
 				DownloadAndFileManager.downloadAndUnzip(folder, link);
 			} catch(IOException e) {
@@ -80,7 +80,7 @@ public class GitHubConnection {
 			}
 			
 			// Assets folder:
-			link = "https://github.com/PixelGuys/Cubyz/releases/download/"+tag+"/assets.zip";
+			link = "https://github.com/PixelGuys/Cubyz-Java/releases/download/"+tag+"/assets.zip";
 			try {
 				DownloadAndFileManager.downloadAndUnzip(folder, link);
 			} catch(IOException e) {
@@ -90,11 +90,11 @@ public class GitHubConnection {
 			}
 			
 			// Dependencies:
-			link = "https://github.com/PixelGuys/Cubyz/releases/download/"+tag+"/pom.xml";
+			link = "https://github.com/PixelGuys/Cubyz-Java/releases/download/"+tag+"/pom.xml";
 			DependencyManager.fetchDependencies(link, System.getProperty("user.home") + "/.cubyz", new File(folder, "pom.xml"));
 			
 			// And finally the jar file. This is downloaded last to reduce potential issues when the user closes the application before everything is done.
-			link = "https://github.com/PixelGuys/Cubyz/releases/download/"+tag+"/Cubyz.jar";
+			link = "https://github.com/PixelGuys/Cubyz-Java/releases/download/"+tag+"/Cubyz.jar";
 			try {
 				DownloadAndFileManager.downloadToFile(jarLocation, link);
 			} catch(IOException e) {
@@ -102,14 +102,14 @@ public class GitHubConnection {
 					// The old version 0.6.0 packaged the libraries into the jar file, so there are multiple files for each OS and arch:
 					if(SystemInfo.OS_FAMILY.equals("windows")) {
 						if(SystemInfo.OS_ARCH.contains("64")) {
-							link = "https://github.com/PixelGuys/Cubyz/releases/download/"+tag+"/Cubyz_win_64.jar";
+							link = "https://github.com/PixelGuys/Cubyz-Java/releases/download/"+tag+"/Cubyz_win_64.jar";
 						} else {
-							link = "https://github.com/PixelGuys/Cubyz/releases/download/"+tag+"/Cubyz_win_x86.jar";
+							link = "https://github.com/PixelGuys/Cubyz-Java/releases/download/"+tag+"/Cubyz_win_x86.jar";
 						}
 						DownloadAndFileManager.downloadToFile(jarLocation, link);
 					} else if(SystemInfo.OS_FAMILY.equals("unix")) {
 						if(SystemInfo.OS_ARCH.contains("64")) {
-							link = "https://github.com/PixelGuys/Cubyz/releases/download/"+tag+"/Cubyz_win_64.jar";
+							link = "https://github.com/PixelGuys/Cubyz-Java/releases/download/"+tag+"/Cubyz_win_64.jar";
 							DownloadAndFileManager.downloadToFile(jarLocation, link);
 						}
 					}
@@ -123,7 +123,7 @@ public class GitHubConnection {
 		}
 		
 		// Build the classpath:
-		ArrayList<String> libs = DependencyManager.fetchDependencies("https://github.com/PixelGuys/Cubyz/releases/download/"+tag+"/pom.xml", System.getProperty("user.home") + "/.cubyz", new File(folder, "pom.xml"));
+		ArrayList<String> libs = DependencyManager.fetchDependencies("https://github.com/PixelGuys/Cubyz-Java/releases/download/"+tag+"/pom.xml", System.getProperty("user.home") + "/.cubyz", new File(folder, "pom.xml"));
 
 		int minJavaVersion = DependencyManager.findJavaVersion(new File(folder, "pom.xml"));
 		if(minJavaVersion > SystemInfo.JAVA_VERSION) {
