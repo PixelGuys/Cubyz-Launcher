@@ -1,6 +1,8 @@
 const std = @import("std");
 const capy = @import("capy");
 
+const http = @import("http.zig");
+
 // This is required for your app to build to WebAssembly and other particular architectures
 pub usingnamespace capy.cross_platform;
 
