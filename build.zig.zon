@@ -1,0 +1,12 @@
+.{
+	.name = "Cubyz-Launcher",
+	.version = "0.0.0",
+	.paths = .{ "."},
+	.dependencies = .{ .capy = .{
+		.url = "https://github.com/capy-ui/capy/archive/4d1778feba39949fb2569379b8ac4aabf4842478.tar.gz",
+		.hash = "12209f37ef449d9324234d06dffe240def0eaa86a7d1492c65a6122124014d71ce68",
+		//If you want to use the most current version of the master branch, use the url below.
+		//Delete the '.hash = "...",'. Run 'zig build'. It will fail, providing you with the uptodate hash.
+		//.url = "https://github.com/capy-ui/capy/archive/refs/heads/master.tar.gz",
+	} },
+}
