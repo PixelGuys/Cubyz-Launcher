@@ -1,0 +1,9 @@
+.{
+	.name = "Cubyz-Launcher",
+	.version = "0.0.0",
+	.paths = .{""},
+
+	.dependencies = .{
+		
+	},
+}
