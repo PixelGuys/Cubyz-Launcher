@@ -977,7 +977,8 @@ const TextRendering = struct {
 		c.glTexParameteri(c.GL_TEXTURE_2D, c.GL_TEXTURE_WRAP_S, c.GL_REPEAT);
 		c.glTexParameteri(c.GL_TEXTURE_2D, c.GL_TEXTURE_WRAP_T, c.GL_REPEAT);
 
-		const rawFontData = @embedFile("assets/unscii-16.hex");
+		const rawFontData: []const u8 = @embedFile("assets/unscii-16.hex");
+		std.log.info("{any}", .{rawFontData[0..1000]});
 		fontData = @TypeOf(fontData).init(main.globalAllocator);
 		{
 			const State = enum {codepoint, data};
@@ -986,12 +987,17 @@ const TextRendering = struct {
 			var data: [16*16]u8 = undefined;
 			var dataIndex: usize = 0;
 			for(rawFontData) |char| {
+				if (char == '\r') {
+					continue;
+				}
+				
 				switch(state) {
 					.codepoint => {
 						if(char == ':') {
 							state = .data;
 							continue;
 						}
+						std.log.debug("Codepoint {d}", .{char});
 						codepoint = codepoint << 4 | try std.fmt.charToDigit(char, 16);
 					},
 					.data => {
@@ -1002,6 +1008,7 @@ const TextRendering = struct {
 							dataIndex = 0;
 							continue;
 						}
+						std.log.debug("Data {d}", .{char});
 						const bits = try std.fmt.charToDigit(char, 16);
 						data[dataIndex] = if(bits & 8 != 0) 255 else 0;
 						dataIndex += 1;
