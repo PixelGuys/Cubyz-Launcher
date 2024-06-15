@@ -977,8 +977,7 @@ const TextRendering = struct {
 		c.glTexParameteri(c.GL_TEXTURE_2D, c.GL_TEXTURE_WRAP_S, c.GL_REPEAT);
 		c.glTexParameteri(c.GL_TEXTURE_2D, c.GL_TEXTURE_WRAP_T, c.GL_REPEAT);
 
-		const rawFontData: []const u8 = @embedFile("assets/unscii-16.hex");
-		std.log.info("{any}", .{rawFontData[0..1000]});
+		const rawFontData = @embedFile("assets/unscii-16.hex");
 		fontData = @TypeOf(fontData).init(main.globalAllocator);
 		{
 			const State = enum {codepoint, data};
