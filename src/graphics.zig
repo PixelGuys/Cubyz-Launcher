@@ -990,14 +990,13 @@ const TextRendering = struct {
 				if (char == '\r') {
 					continue;
 				}
-				
+
 				switch(state) {
 					.codepoint => {
 						if(char == ':') {
 							state = .data;
 							continue;
 						}
-						std.log.debug("Codepoint {d}", .{char});
 						codepoint = codepoint << 4 | try std.fmt.charToDigit(char, 16);
 					},
 					.data => {
@@ -1008,7 +1007,6 @@ const TextRendering = struct {
 							dataIndex = 0;
 							continue;
 						}
-						std.log.debug("Data {d}", .{char});
 						const bits = try std.fmt.charToDigit(char, 16);
 						data[dataIndex] = if(bits & 8 != 0) 255 else 0;
 						dataIndex += 1;
