@@ -10,6 +10,8 @@ pub const renderer = @import("renderer.zig");
 pub const settings = @import("settings.zig");
 pub const utils = @import("utils.zig");
 pub const vec = @import("vec.zig");
+pub const http = @import("http.zig");
+pub const archive = @import("archive.zig");
 
 pub const Window = @import("graphics/Window.zig");
 
