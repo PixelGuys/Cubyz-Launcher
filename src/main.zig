@@ -10,6 +10,8 @@ pub const renderer = @import("renderer.zig");
 pub const settings = @import("settings.zig");
 pub const utils = @import("utils.zig");
 pub const vec = @import("vec.zig");
+pub const http = @import("http.zig");
+pub const archive = @import("archive.zig");
 
 pub const Window = @import("graphics/Window.zig");
 
@@ -279,7 +281,7 @@ pub const KeyBoard = struct {
 
 pub var lastFrameTime = std.atomic.Value(f64).init(0);
 
-pub fn main() void {
+pub fn main() !void {
 	seed = @bitCast(std.time.milliTimestamp());
 	defer if(global_gpa.deinit() == .leak) {
 		std.log.err("Memory leak", .{});

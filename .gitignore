@@ -3,4 +3,5 @@ zig-out/
 logs/
 settings.json
 gui_layout.json
-
+.cubyz/*
+!.cubyz
