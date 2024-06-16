@@ -28,5 +28,5 @@ pub fn decompress_tar_xz(zip_path: []const u8, output_dir: []const u8) !void {
 	var xz_decompress = try compress.xz.decompress(std.heap.page_allocator, tar_file.reader());
 	defer xz_decompress.deinit();
 
-	try std.tar.pipeToFileSystem(output_dir_handle, xz_decompress.reader(), .{.mode_mode = .ignore});
+	try std.tar.pipeToFileSystem(output_dir_handle, xz_decompress.reader(), .{});
 }

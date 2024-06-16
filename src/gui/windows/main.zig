@@ -111,12 +111,15 @@ pub fn play(_:usize) void {
 			std.log.err("Error extracting the compiler: {}\n", .{err});
 			return;
 		};
-		
+
 		var commandBuf: [1024]u8 = undefined;
 		const command = std.fmt.bufPrint(&commandBuf, "./compiler/zig-{s}-{s}-{s}/zig", .{@tagName(builtin.target.os.tag), @tagName(builtin.target.cpu.arch), ver}) catch |err| {
 			std.log.err("Error creating the run command: {}\n", .{err});
 			return;
 		};
+
+		const file = dir.dir.openDir();
+		_ = file;
 
 		const argv = [_][]const u8{command, "build", "run", "-Doptimize=ReleaseSafe"};
 		var proc = std.process.Child.init(&argv, main.stackAllocator.allocator);
