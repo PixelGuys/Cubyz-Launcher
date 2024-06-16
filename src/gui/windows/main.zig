@@ -25,9 +25,9 @@ fn exitGame(_:usize) void {
 
 fn deleteDirectoryRecursive(fs: std.fs.Dir, allocator: std.mem.Allocator, path: []const u8) anyerror!void {
 	var dir = try fs.openDir(path, .{.iterate = true});
-    defer dir.close();
+	defer dir.close();
 
-    var it = dir.iterate();
+	var it = dir.iterate();
 
 	while (try it.next()) |entry| {
 		if (entry.kind == .file) {
@@ -37,7 +37,7 @@ fn deleteDirectoryRecursive(fs: std.fs.Dir, allocator: std.mem.Allocator, path: 
 		}
 	}
 
-    try fs.deleteDir(path);
+	try fs.deleteDir(path);
 }
 
 pub fn play(_:usize) void {
