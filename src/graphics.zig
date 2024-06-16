@@ -986,6 +986,10 @@ const TextRendering = struct {
 			var data: [16*16]u8 = undefined;
 			var dataIndex: usize = 0;
 			for(rawFontData) |char| {
+				if (char == '\r') {
+					continue;
+				}
+
 				switch(state) {
 					.codepoint => {
 						if(char == ':') {
