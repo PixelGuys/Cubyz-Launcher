@@ -120,7 +120,7 @@ pub fn play(_:usize) void {
 
 		const argv = [_][]const u8{command, "build", "run", "-Doptimize=ReleaseSafe"};
 		var proc = std.process.Child.init(&argv, main.stackAllocator.allocator);
-		proc.cwd = ".cubyz/Cubyz-master";
+		proc.cwd_dir = dir;
 		_ = proc.spawnAndWait() catch |err| {
 			std.log.err("Error running cubyz: {}\n", .{err});
 			return;
