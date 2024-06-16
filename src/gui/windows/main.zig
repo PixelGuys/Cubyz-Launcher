@@ -118,9 +118,6 @@ pub fn play(_:usize) void {
 			return;
 		};
 
-		const file = dir.dir.openDir();
-		_ = file;
-
 		const argv = [_][]const u8{command, "build", "run", "-Doptimize=ReleaseSafe"};
 		var proc = std.process.Child.init(&argv, main.stackAllocator.allocator);
 		proc.cwd_dir = dir.dir;
