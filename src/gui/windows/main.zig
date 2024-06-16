@@ -131,6 +131,20 @@ pub fn play(_:usize) void {
 			std.debug.print("{}\n", .{err});
 			return;
 		};
+		
+		var commandBuf: [1024]u8 = undefined;
+		const command = std.fmt.bufPrint(&commandBuf, "./compiler/zig-{s}-{s}-{s}/zig", .{@tagName(builtin.target.os.tag), builtin.target.osArchName(), ver}) catch |err| {
+			std.debug.print("{}\n", .{err});
+			return;
+		};
+
+		const argv = [_][]const u8{command, "build", "run", "-Doptimize=ReleaseSafe"};
+		var proc = std.process.Child.init(&argv, std.heap.page_allocator);
+		proc.cwd = ".cubyz/Cubyz-master";
+		_ = proc.spawnAndWait() catch |err| {
+			std.debug.print("{}\n", .{err});
+			return;
+		};
 	}
 }
 
