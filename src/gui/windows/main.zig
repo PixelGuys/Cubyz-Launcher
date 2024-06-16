@@ -57,7 +57,7 @@ pub fn play(_:usize) void {
 
 	if (builtin.target.os.tag == .windows) {
 		var buf: [128]u8 = undefined;
-		const zig_http = std.fmt.bufPrint(&buf, "https://ziglang.org/builds/zig-{s}-{s}-{s}.zip", .{@tagName(builtin.target.os.tag), builtin.target.osArchName(), ver}) catch |err| {
+		const zig_http = std.fmt.bufPrint(&buf, "https://ziglang.org/builds/zig-{s}-{s}-{s}.zip", .{@tagName(builtin.target.os.tag), @tagName(builtin.target.cpu.arch), ver}) catch |err| {
 			std.log.err("Error getting the http url: {}\n", .{err});
 			return;
 		};
@@ -78,7 +78,7 @@ pub fn play(_:usize) void {
 		};
 
 		var commandBuf: [1024]u8 = undefined;
-		const command = std.fmt.bufPrint(&commandBuf, ".\\compiler\\zig-{s}-{s}-{s}\\zig.exe", .{@tagName(builtin.target.os.tag), builtin.target.osArchName(), ver}) catch |err| {
+		const command = std.fmt.bufPrint(&commandBuf, ".\\compiler\\zig-{s}-{s}-{s}\\zig.exe", .{@tagName(builtin.target.os.tag), @tagName(builtin.target.cpu.arch), ver}) catch |err| {
 			std.log.err("Error creating the run command: {}\n", .{err});
 			return;
 		};
@@ -92,7 +92,7 @@ pub fn play(_:usize) void {
 		};
 	} else {
 		var buf: [128]u8 = undefined;
-		const zig_http = std.fmt.bufPrint(&buf, "https://ziglang.org/builds/zig-{s}-{s}-{s}.tar.xz", .{@tagName(builtin.target.os.tag), builtin.target.osArchName(), ver}) catch |err| {
+		const zig_http = std.fmt.bufPrint(&buf, "https://ziglang.org/builds/zig-{s}-{s}-{s}.tar.xz", .{@tagName(builtin.target.os.tag), @tagName(builtin.target.cpu.arch), ver}) catch |err| {
 			std.log.err("Error getting the http url: {}\n", .{err});
 			return;
 		};
@@ -113,7 +113,7 @@ pub fn play(_:usize) void {
 		};
 		
 		var commandBuf: [1024]u8 = undefined;
-		const command = std.fmt.bufPrint(&commandBuf, "./compiler/zig-{s}-{s}-{s}/zig", .{@tagName(builtin.target.os.tag), builtin.target.osArchName(), ver}) catch |err| {
+		const command = std.fmt.bufPrint(&commandBuf, "./compiler/zig-{s}-{s}-{s}/zig", .{@tagName(builtin.target.os.tag), @tagName(builtin.target.cpu.arch), ver}) catch |err| {
 			std.log.err("Error creating the run command: {}\n", .{err});
 			return;
 		};
